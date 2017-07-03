@@ -17,7 +17,8 @@
 apt_cache_timeout: "{{ cache_timeout }}"
 
 #Standard names and paths for ubuntu 14.04
-keepalived_package_name: "keepalived"
+keepalived_distro_packages:
+  - keepalived
 keepalived_service_name: "keepalived"
 keepalived_config_file_path: "/etc/keepalived/keepalived.conf"
 

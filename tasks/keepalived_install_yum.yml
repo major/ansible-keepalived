@@ -15,7 +15,36 @@
 
 - name: Install keepalived
   apt:
-    pkg: "{{ keepalived_package_name }}"
+    pkg: "{{ keepalived_distro_packages }}"
     state: "{{ keepalived_use_latest_stable | bool | ternary('latest','present') }}"
   tags:
     - keepalived-apt-packages
+
+- name: Create directory for compiling SELinux rule
+  file:
+    path: "/tmp/keepalived-selinux/"
+    state: 'directory'
+    mode: '0755'
+  when:
+    - ansible_selinux.status == "enabled"
+
+- name: Deploy SELinux module source
+  copy:
+    src: "keepalived-haproxy-pid.te"
+    dest: "/tmp/keepalived-selinux/keepalived-haproxy-pid.te"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  when:
+    - ansible_selinux.status == "enabled"
+
+- name: Compile and load SELinux module
+  command: '{{ item }}'
+  args:
+    creates: '/etc/selinux/targeted/active/modules/400/keepalived-haproxy-pid/cil'
+    chdir: "/tmp/keepalived-selinux/"
+  with_items:
+   - make -f /usr/share/selinux/devel/Makefile
+   - semodule -i /tmp/keepalived-selinux/keepalived-haproxy-pid.pp
+  when:
+    - ansible_selinux.status == "enabled"

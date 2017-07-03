@@ -66,7 +66,7 @@
 
 - name: install keepalived
   apt:
-    pkg: "{{ keepalived_package_name }}"
+    pkg: "{{ keepalived_distro_packages }}"
     state: "{{ keepalived_use_latest_stable | bool | ternary('latest','present') }}"
     update_cache: yes
     cache_valid_time: "{{ apt_cache_timeout }}"
